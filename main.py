@@ -87,6 +87,9 @@ class JointKStoNet(nn.Module):
         self.output_layer = nn.Linear(hidden_dims[-1], output_dim)
         
     def forward(self, x, return_features=False):
+        #make sure input is flattened
+        if x.dim()>2:
+            x = x.view(x.size(0), -1)
         # Pass through kernel layer
         h = self.kernel_layer(x)
         
@@ -288,7 +291,8 @@ def load_mnist_data(batch_size=128):
     """Load MNIST dataset"""
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.1307,), (0.3081,)),
+        transforms.Lambda(lambda x: x.view(-1))
     ])
     
     train_dataset = datasets.MNIST('./data', train=True, download=True, transform=transform)
